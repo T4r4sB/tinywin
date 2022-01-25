@@ -1,11 +1,4 @@
-#![no_main]
-#![no_std]
-
-#![windows_subsystem = "windows"]
-#[cfg(windows)] extern crate winapi;
-
 use core::mem::MaybeUninit;
-use core::panic::PanicInfo;
 
 use winapi::shared::minwindef::{
     LRESULT,
@@ -56,6 +49,8 @@ pub unsafe extern "system" fn window_proc(hwnd: HWND,
 
     match msg {
         winapi::um::winuser::WM_PAINT => {
+            println!("abort");
+            std::process::abort();
             let mut paint_struct = MaybeUninit::uninit();
             let mut rect = MaybeUninit::uninit();
             let hdc = BeginPaint(hwnd, paint_struct.as_mut_ptr());
@@ -115,12 +110,8 @@ fn handle_message( window : HWND ) -> bool {
     }
 }
 
-#[panic_handler]
-#[no_mangle]
-pub extern fn panic( _info: &PanicInfo ) -> ! { loop {} }
 
-#[no_mangle]
-pub extern "system" fn mainCRTStartup() {
+pub fn main() {
     let window = create_window(  );
     loop {
         if !handle_message( window ) {
